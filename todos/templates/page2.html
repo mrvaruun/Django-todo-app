@@ -1,0 +1,62 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at top, #ff00dd, #4b008e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: Arial;
+            text-align: center;
+        }
+
+        .box {
+            width: 380px;
+            padding: 25px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 18px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 0 35px rgba(255, 0, 220, 0.8);
+        }
+
+        img {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(255,255,255,0.4);
+        }
+
+        h2 {
+            margin-top: 18px;
+            font-size: 26px;
+            text-shadow: 0 0 15px rgba(255,255,255,0.9);
+        }
+
+        p {
+            font-size: 17px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="box">
+        <img src="{% static 'images/myphoto.jpg' %}" alt="Profile Image">
+
+        <h2>Welcome to My Page 💜</h2>
+        <p>You entered your number successfully.</p>
+        <p>This is your bold gay-clubbing theme profile ✨</p>
+    </div>
+
+</body>
+</html>
