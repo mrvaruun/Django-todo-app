@@ -1,64 +1,427 @@
-{% extends 'todos/base.html' %}
-
-{% block title %}
-<title>Todo list</title>
-{% endblock %}
-
-{% block content %}
-<div class="container">
-
-  <!-- title row -->
-  <div class="row">
-    <div class="offset-md-2 col-lg-9">
-      <div class="page-header">
-        <h1>
-          Todo List - for batch 5
-        </h1>
-      </div>
-    </div>
-  </div>
-
-  <!-- Add a todo row -->
-  <div class="row">
-    <div class="offset-md-2 col-lg-9">
-      <form method="post" action="{% url 'todos:add' %}">
-        {% csrf_token %}
-        <div class="form-row">
-          <div class="col-md-6">
-            <input type="text" class="form-control" name="title" placeholder="Do laundry" required>
-          </div>
-          <div class="col-md-6">
-            <button type="submit" name="submit" class="btn btn-outline-primary">
-              Add
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-  <hr />
-
-  <!-- todo list row -->
-  <div class="row">
-    <div class="offset-md-2 col-lg-6">
-      <div class="list-group">
-        {% for todo in todo_list %}
-        <div class="list-group-item {% if todo.isCompleted %} todo-complete {% endif %}">
-          <form style="display: inline;" method="post" action="{% url 'todos:update' todo.id %}">
-            {% csrf_token %}
-            <input type="checkbox" name="isCompleted" onchange="this.form.submit()" {% if todo.isCompleted %} checked
-              {% endif %} class="todo-status-checkbox"
-              title="{% if not todo.isCompleted %} mark as done {% else %} mark undone {% endif %}">
-          </form>
-          {{ todo.title }}
-          <a href="{% url 'todos:delete' todo.id %}" title="Delete">
-            <i class="far fa-trash-alt"></i>
-          </a>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achievement Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .progress-bar {
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #e0e0e0;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .glow {
+            box-shadow: 0 0 15px rgba(56, 182, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Team Achievement Dashboard</h1>
+                <p class="text-gray-600 mt-2">Monthly Performance Overview</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <div class="bg-white rounded-lg shadow-md p-4 flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <i data-feather="award" class="text-blue-500"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Total Achievement</p>
+                <p class="text-xl font-bold text-gray-800">₹399,300</p>
 </div>
+                </div>
+            </div>
+        </div>
 
-{% endblock %}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <div class="flex items-center mb-4">
+                    <div class="bg-blue-500 text-white p-3 rounded-lg mr-4">
+                        <i data-feather="bar-chart-2"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800">Commit vs Achievement</h2>
+                </div>
+                <canvas id="commitChart" height="300"></canvas>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <div class="flex items-center mb-4">
+                    <div class="bg-green-500 text-white p-3 rounded-lg mr-4">
+                        <i data-feather="activity"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800">Achievement Percentage</h2>
+                </div>
+                <canvas id="achievementChart" height="300"></canvas>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <div class="flex items-center mb-4">
+                    <div class="bg-purple-500 text-white p-3 rounded-lg mr-4">
+                        <i data-feather="trending-up"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800">Top Performers</h2>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                        <div class="bg-blue-500 text-white p-2 rounded-full mr-3">
+                            <i data-feather="star"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-medium">koushik</p>
+                            <p class="text-sm text-gray-600">49% of target</p>
+                        </div>
+                        <span class="font-bold text-blue-500">₹147,000</span>
+                    </div>
+                    <div class="flex items-center p-3 bg-indigo-50 rounded-lg">
+                        <div class="bg-indigo-500 text-white p-2 rounded-full mr-3">
+                            <i data-feather="star"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-medium">shobha</p>
+                            <p class="text-sm text-gray-600">65% of target</p>
+                        </div>
+                        <span class="font-bold text-indigo-500">₹64,900</span>
+                    </div>
+                    <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                        <div class="bg-green-500 text-white p-2 rounded-full mr-3">
+                            <i data-feather="star"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-medium">Megha</p>
+                            <p class="text-sm text-gray-600">23% of target</p>
+                        </div>
+                        <span class="font-bold text-green-500">₹67,950</span>
+</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Detailed Performance Breakdown</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commit</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Achievement</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">koushik</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹300,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹147,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600">49%</td>
+                            <td class="px-6 py-4 whitespace-nowrap w-40">
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-blue-500" style="width: 49%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">Megha</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹300,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹67,950</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">23%</td>
+                            <td class="px-6 py-4 whitespace-nowrap w-40">
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-500" style="width: 23%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600">Varsha</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹250,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹45,900</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-purple-600">18%</td>
+                            <td class="px-6 py-4 whitespace-nowrap w-40">
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-purple-500" style="width: 18%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">4</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600">Rakshitha</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹100,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹7,500</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-600">8%</td>
+                            <td class="px-6 py-4 whitespace-nowrap w-40">
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-gray-500" style="width: 8%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">5</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-yellow-600">Tejaswini</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹250,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹12,950</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-yellow-600">5%</td>
+                            <td class="px-6 py-4 whitespace-nowrap w-40">
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-yellow-500" style="width: 5%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">6</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">shobha</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹100,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹64,900</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600">65%</td>
+                            <td class="px-6 py-4 whitespace-nowrap w-40">
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-indigo-500" style="width: 65%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">7</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600">abhishek</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹100,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹0</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-600">0%</td>
+                            <td class="px-6 py-4 whitespace-nowrap w-40">
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-red-500" style="width: 0%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">8</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-pink-600">pallavi</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹100,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹11,800</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-pink-600">12%</td>
+                            <td class="px-6 py-4 whitespace-nowrap w-40">
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-pink-500" style="width: 12%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">9</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600">manu mr</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹150,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹0</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-600">0%</td>
+                            <td class="px-6 py-4 whitespace-nowrap w-40">
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-red-500" style="width: 0%"></div>
+                                </div>
+                            </td>
+</tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-10 bg-white rounded-xl shadow-md overflow-hidden card-hover">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Performance Insights</h2>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i data-feather="alert-circle" class="text-blue-500 mr-2"></i>
+                            <h3 class="font-medium text-blue-800">Key Observation</h3>
+                        </div>
+                <p class="text-sm text-blue-700">koushik leads the team with 49% achievement, followed by shobha with 65% but with lower commit amount.</p>
+</div>
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i data-feather="alert-triangle" class="text-yellow-500 mr-2"></i>
+                            <h3 class="font-medium text-yellow-800">Area of Concern</h3>
+                        </div>
+                <p class="text-sm text-yellow-700">2 team members (abhishek and manu mr) haven't achieved any targets this month.</p>
+</div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i data-feather="thumbs-up" class="text-green-500 mr-2"></i>
+                            <h3 class="font-medium text-green-800">Positive Note</h3>
+                        </div>
+                <p class="text-sm text-green-700">Top 3 performers (koushik, shobha, Megha) account for 72% of total achievements.</p>
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            // Commit vs Achievement Chart
+            const commitCtx = document.getElementById('commitChart').getContext('2d');
+            const commitChart = new Chart(commitCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['koushik', 'Megha', 'Varsha', 'Rakshitha', 'Tejaswini', 'shobha', 'abhishek', 'pallavi', 'manu mr'],
+                    datasets: [
+                        {
+                            label: 'Commit',
+                            data: [300000, 300000, 250000, 100000, 250000, 100000, 100000, 100000, 150000],
+                            backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                            borderColor: 'rgba(99, 102, 241, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Achievement',
+                            data: [147000, 67950, 45900, 7500, 12950, 64900, 0, 11800, 0],
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            borderWidth: 1
+}
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += '₹' + context.parsed.y.toLocaleString();
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Achievement Percentage Chart
+            const achievementCtx = document.getElementById('achievementChart').getContext('2d');
+            const achievementChart = new Chart(achievementCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['koushik', 'Megha', 'Varsha', 'Rakshitha', 'Tejaswini', 'shobha', 'abhishek', 'pallavi', 'manu mr'],
+                    datasets: [{
+                        data: [147000, 67950, 45900, 7500, 12950, 64900, 0, 11800, 0],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',    // blue - koushik
+                            'rgba(16, 185, 129, 0.8)',    // green - Megha
+                            'rgba(139, 92, 246, 0.8)',    // purple - Varsha
+                            'rgba(156, 163, 175, 0.8)',   // gray - Rakshitha
+                            'rgba(234, 179, 8, 0.8)',     // yellow - Tejaswini
+                            'rgba(99, 102, 241, 0.8)',    // indigo - shobha
+                            'rgba(239, 68, 68, 0.8)',     // red - abhishek
+                            'rgba(236, 72, 153, 0.8)',    // pink - pallavi
+                            'rgba(239, 68, 68, 0.8)'      // red - manu mr
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(139, 92, 246, 1)',
+                            'rgba(156, 163, 175, 1)',
+                            'rgba(234, 179, 8, 1)',
+                            'rgba(99, 102, 241, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(236, 72, 153, 1)',
+                            'rgba(239, 68, 68, 1)'
+],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ₹${value.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Animate progress bars
+            document.querySelectorAll('.progress-fill').forEach(bar => {
+                const targetWidth = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = targetWidth;
+                }, 100);
+            });
+        });
+    </script>
+
+<!-- HTML2Canvas and Download Button -->
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script>
+function downloadDashboardImage() {
+    html2canvas(document.body, { scale: 2 }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "Team_Achievement_Dashboard.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+<button onclick="downloadDashboardImage()" 
+  class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg fixed bottom-5 right-5 shadow-lg z-50">
+  Download as Image
+</button>
+
+</body>
+</html>
