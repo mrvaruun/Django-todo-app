@@ -33,3 +33,6 @@ def update(request, todo_id):
 
     todo.save()
     return redirect('todos:index')
+    def page2(request):
+    mobile = request.GET.get("mobile", "")
+    return render(request, "page2.html", {"mobile": mobile})
