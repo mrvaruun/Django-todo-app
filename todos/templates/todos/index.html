@@ -1,74 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sales Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>Contact Me</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff0099, #8e00f7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        .container {
+            width: 350px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 25px rgba(255, 0, 180, 0.7);
+        }
+
+        img {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+
+        h2 {
+            margin: 15px 0;
+            font-size: 22px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.8);
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 95%;
+            margin-top: 15px;
+            padding: 12px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            background: #ff00c8;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(255, 0, 200, 0.8);
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #ff5eea;
+            box-shadow: 0 0 20px rgba(255, 0, 200, 1);
+        }
+    </style>
 </head>
-<body class="bg-gray-100 p-8">
-    <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-bold mb-6 text-center">Sales Team Dashboard</h1>
 
-        <!-- Editable Table -->
-        <div class="bg-white p-6 rounded-xl shadow-lg mb-10">
-            <h2 class="text-xl font-semibold mb-4">Performance Table (Editable)</h2>
-            <table class="min-w-full table-auto border-collapse" id="salesTable">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="border p-2">Sl</th>
-                        <th class="border p-2">Name</th>
-                        <th class="border p-2">Salary</th>
-                        <th class="border p-2">Commit for Month</th>
-                        <th class="border p-2">Achievement</th>
-                        <th class="border p-2">Day Incentive</th>
-                    </tr>
-                </thead>
-                <tbody contenteditable="true" class="bg-white">
-                    <tr><td class="border p-2">1</td><td class="border p-2">Tejaswini</td><td class="border p-2">21850</td><td class="border p-2">250000</td><td class="border p-2">106200</td><td class="border p-2"></td></tr>
-                    <tr><td class="border p-2">2</td><td class="border p-2">Megha</td><td class="border p-2">22700</td><td class="border p-2">300000</td><td class="border p-2">17400</td><td class="border p-2"></td></tr>
-                    <tr><td class="border p-2">3</td><td class="border p-2">koushik</td><td class="border p-2">21000</td><td class="border p-2">300000</td><td class="border p-2">140000</td><td class="border p-2"></td></tr>
-                    <tr><td class="border p-2">4</td><td class="border p-2">Varsha</td><td class="border p-2">16000</td><td class="border p-2">250000</td><td class="border p-2">24600</td><td class="border p-2"></td></tr>
-                    <tr><td class="border p-2">5</td><td class="border p-2">shobha</td><td class="border p-2">16000</td><td class="border p-2">100000</td><td class="border p-2">2950</td><td class="border p-2"></td></tr>
-                    <tr><td class="border p-2">6</td><td class="border p-2">shwetha</td><td class="border p-2">16000</td><td class="border p-2">100000</td><td class="border p-2"></td><td class="border p-2"></td></tr>
-                    <tr><td class="border p-2">7</td><td class="border p-2">pallavi</td><td class="border p-2">16000</td><td class="border p-2">100000</td><td class="border p-2">11800</td><td class="border p-2"></td></tr>
-                    <tr><td class="border p-2">8</td><td class="border p-2">manu mr</td><td class="border p-2"></td><td class="border p-2">100000</td><td class="border p-2">45600</td><td class="border p-2"></td></tr>
-                    <tr><td class="border p-2">9</td><td class="border p-2">kalpana</td><td class="border p-2"></td><td class="border p-2">100000</td><td class="border p-2">2950</td><td class="border p-2"></td></tr>
-                    <tr><td class="border p-2">10</td><td class="border p-2">Deepika</td><td class="border p-2"></td><td class="border p-2">100000</td><td class="border p-2">5900</td><td class="border p-2"></td></tr>
-                </tbody>
-            </table>
-        </div>
+<body>
 
-        <!-- Chart Section -->
-        <div class="bg-white p-6 rounded-xl shadow-lg">
-            <h2 class="text-xl font-semibold mb-4">Achievement Chart</h2>
-            <canvas id="achievementChart" height="120"></canvas>
-        </div>
+    <div class="container">
+
+        <!-- YOUR BASE64 IMAGE -->
+        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD…(base64 trimmed)…" alt="Profile Image">
+
+        <h2>I am gay, contact me 🌈</h2>
+
+        <form action="page2.html">
+            <input type="number" name="mobile" placeholder="Enter your mobile number" required>
+            <button type="submit">Next ➜</button>
+        </form>
     </div>
 
-    <script>
-        const names = ["Tejaswini","Megha","koushik","Varsha","shobha","shwetha","pallavi","manu mr","kalpana","Deepika"];
-        const achievement = [106200,17400,140000,24600,2950,0,11800,45600,2950,5900];
-
-        new Chart(document.getElementById("achievementChart"), {
-            type: "bar",
-            data: {
-                labels: names,
-                datasets: [{
-                    label: "Achievement",
-                    data: achievement,
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
-        });
-    </script>
 </body>
 </html>
-
