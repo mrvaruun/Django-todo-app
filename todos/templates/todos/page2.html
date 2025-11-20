@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,7 +50,7 @@
 <body>
 
     <div class="box">
-        <img src="your-image.jpg" alt="Profile Image">
+        <img src="{% static 'images/myphoto.jpg' %}" alt="Profile Image">
 
         <h2>Welcome to My Page 💜</h2>
         <p>You entered your number successfully.</p>
