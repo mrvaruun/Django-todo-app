@@ -36,3 +36,4 @@ def update(request, todo_id):
     def page2(request):
     mobile = request.GET.get("mobile", "")
     return render(request, "page2.html", {"mobile": mobile})
+
